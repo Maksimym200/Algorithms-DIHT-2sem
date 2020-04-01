@@ -2,8 +2,6 @@
 #include <cassert>
 #include <stack>
 #include <queue>
-#include <utility>
-#include <algorithm>
 #include <vector>
 using std::stack;
 using std::pair;
