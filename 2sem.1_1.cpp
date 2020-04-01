@@ -43,7 +43,7 @@ private:
 };
 
 template <class TVisit, class TCollector>
-void BFS(graph& g, int startIndex, const TVisit& visit, TCollector& collector)
+void BFS(const graph& g, int startIndex, const TVisit& visit, TCollector& collector)
 {
 	bool* visited = new bool[g.size()];
 	for (int i = g.size() - 1; i >= 0; i--)
@@ -72,12 +72,12 @@ void BFS(graph& g, int startIndex, const TVisit& visit, TCollector& collector)
 	delete[] visited;
 }
 
-void visit(int index, int depth, graph& g, int* arr)
+void visit(int index, int depth, const graph& g, int* arr)
 {
 	arr[index] = depth;
 }
 
-int findMinRoadLength(graph& roads, int fPoint, int sPoint, int tPoint)
+int findMinRoadLength(const graph& roads, int fPoint, int sPoint, int tPoint)
 {
 	int* fDist = new int[roads.size()];
 	int* sDist = new int[roads.size()];
