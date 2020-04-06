@@ -1,24 +1,20 @@
-﻿#include <iostream>
+#include <iostream>
 #include <cassert>
 #include <stack>
 #include <queue>
-#include <utility>
-#include <algorithm>
 #include <vector>
 #include <unordered_set>
-#include <unordered_map>
 using std::stack;
 using std::pair;
 using std::vector;
 using std::queue;
 using std::unordered_set;
-using std::unordered_map;
 
 class graph
 {
 public:
 	graph() = default;
-	graph(int vertexNumber)
+	explicit graph(int vertexNumber)
 	{
 		vNumber = vertexNumber;
 		eArray = vector<vector<int>>(vNumber);
@@ -43,7 +39,7 @@ public:
 	{
 		eArray.push_back(vector<int>(0));
 	}
-	const vector<int>& getNeighbors(int index) const
+	const vector<int>& next(int index) const
 	{
 		assert(index < vNumber && index >= 0);
 		return eArray[index];
@@ -57,7 +53,7 @@ public:
 		vector<vector<int>> revEdges(vNumber);
 		for (int i = vNumber - 1; i >= 0; i--)
 		{
-			vector<int> edges = getNeighbors(i);
+			vector<int> edges = next(i);
 			for (int j = edges.size() - 1; j >= 0; j--)
 			{
 				revEdges[edges[j]].push_back(i);
@@ -66,7 +62,7 @@ public:
 		*this = graph(revEdges);
 	}
 private:
-	graph(vector<vector<int>> edges)
+	explicit graph(vector<vector<int>> edges)
 	{
 		eArray = edges;
 		vNumber = edges.size();
@@ -106,7 +102,7 @@ public:
 	{
 	public:
 		face() = default;
-		face(vector<int> c) : circle(c) 
+		face(vector<int> c) : circle(c)
 		{
 			for (int i = circle.size() - 1; i >= 0; i--)
 			{
@@ -203,11 +199,11 @@ public:
 		faces[f] = face(circleF);
 		faces.push_back(face(circleS));
 	}
-//private:
+private:
 	vector<face> faces;
 };
 
-bool getCircle(const graph& g, const vector<int>& subGraph, vector<int>& arr)
+bool tryGetCircle(const graph& g, const vector<int>& subGraph, vector<int>& arr)
 {
 	arr.clear();
 	int size = g.size();
@@ -244,10 +240,10 @@ bool getCircle(const graph& g, const vector<int>& subGraph, vector<int>& arr)
 			{
 				colors[v] = 1;
 				toVisit.push(v);
-				vector<int> next = g.getNeighbors(v);
+				vector<int> next = g.next(v);
 				for (int j = next.size() - 1; j >= 0; j--)
 				{
-					if (colors[next[j]] == 1  && currentWay.top() != next[j])
+					if (colors[next[j]] == 1 && currentWay.top() != next[j])
 					{
 						currentWay.push(v);
 						arr.push_back(next[j]);
@@ -256,18 +252,10 @@ bool getCircle(const graph& g, const vector<int>& subGraph, vector<int>& arr)
 							arr.push_back(currentWay.top());
 							currentWay.pop();
 						}
-
-						/* std::cout << "CIRCLE:\n";
-						for (int i = 0; i < arr.size(); i++)
-						{
-							std::cout << arr[i] << " ";
-						}
-						std::cout << "\n\n"; */
-
 						delete[] colors;
 						return true;
 					}
-					else if(currentWay.top() != next[j])
+					else if (currentWay.top() != next[j])
 					{
 						toVisit.push(next[j]);
 					}
@@ -291,7 +279,7 @@ void BFS(TGraph& g, int startIndex, void (*visit)(int i, int color, TGraph& g, T
 		int vertex = nextToVisit.front();
 		nextToVisit.pop();
 		visit(vertex, colors[vertex], g, collector);
-		const vector<int>& next = g.getNeighbors(vertex);
+		const vector<int>& next = g.next(vertex);
 		for (int i = next.size() - 1; i >= 0; i--)
 		{
 			if (colors[next[i]] == 0)
@@ -354,7 +342,6 @@ vector<pair<vector<int>, vector<int>>> getSegments(const graph& g, const vector<
 			}
 		}
 	}
-
 	for (int i = g.size() - 1; i >= 0; i--)
 	{
 		colors[i] = 2;
@@ -367,10 +354,9 @@ vector<pair<vector<int>, vector<int>>> getSegments(const graph& g, const vector<
 	{
 		colors[chain[i]] = 2;
 	}
-
 	for (int i = chain.size() - 2; i > 0; i--)
 	{
-		const vector<int>& next = g.getNeighbors(chain[i]);
+		const vector<int>& next = g.next(chain[i]);
 		for (int j = next.size() - 1; j >= 0; j--)
 		{
 			if (colors[next[j]] == 2 && chain[i + 1] != next[j] && chain[i - 1] != next[j])
@@ -383,31 +369,6 @@ vector<pair<vector<int>, vector<int>>> getSegments(const graph& g, const vector<
 		colors[chain[i]] = 2;
 	}
 	delete[] colors;
-	for (int i = 0; i < segments.size(); i++)
-	{
-		std::cout << "SEGMENT " << i << "\n";
-		for (int j = 0; j < segments[i].first.size(); j++)
-		{
-			std::cout << segments[i].first[j] << " ";
-		}
-		std::cout << "\n";
-		std::cout << "CONTACT " << "\n";
-		for (int j = 0; j < segments[i].second.size(); j++)
-		{
-			std::cout << segments[i].second[j] << " ";
-		}
-		std::cout << "\n\n";
-	}
-
-	for (int i = 0; i < fewContactsSegments.size(); i++)
-	{
-		std::cout << "FEW CONTACTS SEGMENT " << i << "\n";
-		for (int j = 0; j < fewContactsSegments[i].size(); j++)
-		{
-			std::cout << fewContactsSegments[i][j] << " ";
-		}
-		std::cout << "\n";
-	}
 	return segments;
 }
 
@@ -446,14 +407,6 @@ vector<int> getChain(const graph& g, const vector<int>& segment, const vector<in
 				currentWay.pop();
 			}
 			delete[] colors;
-
-			std::cout << "\nCHAIN:\n";
-			for (int i = 0; i < chain.size(); i++)
-			{
-				std::cout << chain[i] << " ";
-			}
-			std::cout << "\n";
-
 			return chain;
 		}
 		if (colors[v] == 1)
@@ -464,7 +417,7 @@ vector<int> getChain(const graph& g, const vector<int>& segment, const vector<in
 		if (colors[v] <= 0)
 		{
 			toVisit.push(v);
-			vector<int> next = g.getNeighbors(v);
+			vector<int> next = g.next(v);
 			for (int j = next.size() - 1; j >= 0; j--)
 			{
 				if (colors[next[j]] == 0 || (colors[next[j]] < 0 && (colors[v] != -2 || !hasNotContacts)))
@@ -481,7 +434,7 @@ vector<int> getChain(const graph& g, const vector<int>& segment, const vector<in
 bool isPlanary(const graph& g, const vector<int>& subGraph)
 {
 	vector<int> circle;
-	if (!getCircle(g, subGraph, circle))
+	if (!tryGetCircle(g, subGraph, circle))
 	{
 		return true;
 	}
@@ -495,7 +448,6 @@ bool isPlanary(const graph& g, const vector<int>& subGraph)
 			return false;
 		}
 	}
-
 	vector<vector<int>> segmentsNesting(segments.size());
 	for (int i = segments.size() - 1; i >= 0; i--)
 	{
@@ -527,9 +479,6 @@ bool isPlanary(const graph& g, const vector<int>& subGraph)
 				}
 			}
 		}
-
-	//	std::cout << leastNesting << "LN";
-
 		vector<int> chain = getChain(g, segments[leastNesting].first, segments[leastNesting].second);
 		pG.addLine(chain, segmentsNesting[leastNesting][0]);
 		vector<pair<vector<int>, vector<int>>> newSegments = getSegments(g, segments[leastNesting].first, chain, fewContactSegments);
@@ -544,17 +493,6 @@ bool isPlanary(const graph& g, const vector<int>& subGraph)
 		vector<int> newSegmentsInFace;
 		faces.push_back(vector<int>(0));
 		int newFace = segmentsNesting[leastNesting][0];
-		std::cout << "REAL FACES IN MID:\n";
-		for (int i = 0; i < pG.faces.size(); i++)
-		{
-			std::cout << "FACE " << i << "\n";
-			for (int j = 0; j < pG.faces[i].circle.size(); j++)
-			{
-				std::cout << pG.faces[i].circle[j] << " ";
-			}
-			std::cout << "\n";
-		}
-
 		for (int i = faces[newFace].size() - 1; i >= 0; i--)
 		{
 			int thisSegment = faces[newFace][i];
@@ -614,58 +552,6 @@ bool isPlanary(const graph& g, const vector<int>& subGraph)
 		segmentsNesting[leastNesting].clear();
 		segmentsNesting[leastNesting].push_back(-1);
 		leastNesting = 0;
-		std::cout << "\nFACES AFTER:\n";
-		for (int i = 0; i < faces.size(); i++)
-		{
-			for (int j = 0; j < faces[i].size(); j++)
-			{
-				std::cout << faces[i][j] << " ";
-			}
-			std::cout << "\n";
-		}
-
-		std::cout << "SEGMENT NESTING AFTER:\n";
-		for (int i = 0; i < segmentsNesting.size(); i++)
-		{
-			std::cout << "SEGMENT " << i << "\n";
-			for (int j = 0; j < segmentsNesting[i].size(); j++)
-			{
-				std::cout << segmentsNesting[i][j] << " ";
-			}
-			std::cout << "\n";
-		}
-
-		std::cout << "REAL FACES AFTER:\n";
-		for (int i = 0; i < pG.faces.size(); i++)
-		{
-			std::cout << "FACE " << i << "\n";
-			for (int j = 0; j < pG.faces[i].circle.size(); j++)
-			{
-				std::cout << pG.faces[i].circle[j] << " ";
-			}
-			std::cout << "\n";
-		}
-
-		std::cout << "ALL SEGMENTS:\n";
-		for (int i = 0; i < segments.size(); i++)
-		{
-			if (segmentsNesting[i][0] != -1)
-			{
-				std::cout << "SEGMENT " << i << "\n";
-				for (int j = 0; j < segments[i].first.size(); j++)
-				{
-					std::cout << segments[i].first[j] << " ";
-				}
-				std::cout << "\n";
-				std::cout << "CONTACT " << "\n";
-				for (int j = 0; j < segments[i].second.size(); j++)
-				{
-					std::cout << segments[i].second[j] << " ";
-				}
-				std::cout << "\n\n";
-			}
-		}
-
 	}
 	return true;
 }
