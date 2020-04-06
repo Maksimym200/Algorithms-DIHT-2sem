@@ -1,8 +1,6 @@
 ﻿#include <iostream>
 #include <cassert>
 #include <stack>
-#include <utility>
-#include <algorithm>
 #include <vector>
 using std::stack;
 using std::pair;
@@ -12,7 +10,7 @@ class graph
 {
 public:
 	graph() = default;
-	graph(int vertexNumber)
+	explicit graph(int vertexNumber)
 	{
 		vNumber = vertexNumber;
 		eArray = vector<vector<int>>(vNumber);
@@ -40,12 +38,12 @@ private:
 	vector<vector<int>> eArray;
 };
 
-bool topSort(graph& g, vector<int>& arr)
+bool tryTopSort(graph& g, vector<int>& arr)
 {
 	bool result = true;
 	arr.clear();
 	int size = g.size();
-	int* colors = new int[size];
+	int* colors = new int[size]; // 0 - not visited, 1 - in process of visiting, 2- visited
 	for (int i = 0; i < size; i++)
 	{
 		colors[i] = 0;
@@ -105,7 +103,7 @@ int main()
 		g.addEdge(sVertex, fVertex);
 	}
 	vector<int> arr;
-	if (topSort(g, arr))
+	if (tryTopSort(g, arr))
 	{
 		std::cout << "YES\n";
 		for (int i = 0; i < n; i++)
