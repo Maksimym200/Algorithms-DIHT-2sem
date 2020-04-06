@@ -12,7 +12,7 @@ class graph
 {
 public:
 	graph() = default;
-	graph(int vertexNumber)
+	explicit graph(int vertexNumber)
 	{
 		vNumber = vertexNumber;
 		eArray = vector<vector<int>>(vNumber);
@@ -49,7 +49,7 @@ public:
 		*this = graph(revEdges);
 	}
 private:
-	graph(vector<vector<int>> edges)
+	explicit graph(vector<vector<int>> edges)
 	{
 		eArray = edges;
 		vNumber = edges.size();
