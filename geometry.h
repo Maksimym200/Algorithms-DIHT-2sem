@@ -252,7 +252,7 @@ public:
 class Polygon : public Shape
 {
 public:
-	~Polygon() = default;
+	virtual ~Polygon() = default;
 	Polygon(const std::vector<Point>& circle) : vertexes(circle) { ; }
 	template <class... V>
 	Polygon(const V& ... points);
@@ -549,7 +549,7 @@ void Polygon::scale(const Point& center, const double& coefficient)
 class Ellipse : public Shape
 {
 public:
-	~Ellipse() = default;
+	virtual ~Ellipse() = default;
 	Ellipse() = default;
 	Ellipse(const Point& fFirst, const Point& fSecond, const double& dist);
 	std::pair<Point, Point> focuses() const;
@@ -695,7 +695,7 @@ bool Ellipse::containsPoint(const Point& point) const
 class Circle : public Ellipse
 {
 public:
-	~Circle() { ; }
+	virtual ~Circle() = default;
 	Circle() : Ellipse() {}
 	Circle(const Point& center, const double& radius) : Ellipse(center, center, 2 * radius) {};
 	std::pair<Line, Line> directrices() const = delete;
@@ -712,6 +712,7 @@ double Circle::radius() const
 class Rectangle : public Polygon
 {
 public:
+	virtual ~Rectangle() = default;
 	Rectangle(const Point& dF, const Point& dS, double coefficient);
 	Point center() const;
 	std::pair<Line, Line> diagonals() const;
@@ -744,6 +745,7 @@ std::pair<Line, Line> Rectangle::diagonals() const
 class Square : public Rectangle
 {
 public:
+	virtual ~Square() = default;
 	Square(const Point& a, const Point& b) : Rectangle(a, b, 1) { ; }
 	Circle circumscribedCircle() const;
 	Circle inscribedCircle() const;
@@ -764,6 +766,7 @@ Circle Square::inscribedCircle() const
 class Triangle : public Polygon
 {
 public:
+	virtual ~Triangle() = default;
 	Triangle(const Point& first, const Point& second, const Point& third) : Polygon(first, second, third) {}
 	Circle circumscribedCircle() const;
 	Circle inscribedCircle() const;
