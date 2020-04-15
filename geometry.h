@@ -421,46 +421,33 @@ bool Polygon::containsPoint(const Point& point) const
 {
 	Point cross;
 	Line line(point, Point(point.x, point.y + 1));
-	if (_isInside(vertexes[0], vertexes[vertexes.size() - 1], point))
-		return true;
 	int crossingNumber = 0;
+	int crossingVertexes = 0;
 	size_t i = 0;
-	if (!line.isParallelTo(Line(vertexes[vertexes.size() - 1], vertexes[0])))
+	for (size_t i = 0; i < vertexes.size(); i++)
 	{
-		cross = _crossing(Line(vertexes[vertexes.size() - 1], vertexes[0]), line);
-		if (!((cross == vertexes[0] && vertexes[0].y <= vertexes[1].y && vertexes[0].y < vertexes[vertexes.size() - 1].y) ||
-			(cross == vertexes[vertexes.size() - 1] && vertexes[vertexes.size() - 1].y < vertexes[vertexes.size() - 2].y &&
-				vertexes[vertexes.size() - 1].y <= vertexes[0].y)))
+		if (_isInside(vertexes[(i + 1) % vertexes.size()], vertexes[i], point))
+			return true;
+		if (!line.isParallelTo(Line(vertexes[i], vertexes[(i + 1) % vertexes.size()])))
 		{
-			if (cross.y >= point.y && _isInside(vertexes[vertexes.size() - 1], vertexes[0], cross))
+			size_t nextOne = (i + 2) % vertexes.size();
+			size_t nextTwo = (i + 3) % vertexes.size();
+			size_t prevOne = (i + vertexes.size() - 1) % vertexes.size();
+			size_t prevTwo = (i + vertexes.size() - 2) % vertexes.size();
+			cross = _crossing(Line(vertexes[i], vertexes[(i + 1) % vertexes.size()]), line);
+			if (cross == vertexes[(i + 1) % vertexes.size()] && (vertexes[vertexes[nextOne].x != cross.x ? nextOne : nextTwo].x < cross.x != vertexes[i].x < cross.x) ||
+				cross == vertexes[i] && (vertexes[(i + 1) % vertexes.size()].x < cross.x
+					!= vertexes[vertexes[prevOne].x != cross.x ? prevOne : prevTwo].x < cross.x))
+			{
+				crossingVertexes++;
+			}
+			else if (cross.y >= point.y && _isInside(vertexes[i], vertexes[(i + 1) % vertexes.size()], cross))
 			{
 				crossingNumber++;
-				if (cross == vertexes[0])
-					i++;
 			}
 		}
 	}
-	for (; i < vertexes.size() - 1; i++)
-	{
-		if (_isInside(vertexes[i + 1], vertexes[i], point))
-			return true;
-		if (!line.isParallelTo(Line(vertexes[i], vertexes[i + 1])))
-		{
-			cross = _crossing(Line(vertexes[i], vertexes[i + 1]), line);
-			if (!((cross == vertexes[i + 1] && vertexes[i + 1].y <= vertexes[(i + 2) % vertexes.size()].y && vertexes[i + 1].y < vertexes[i].y) ||
-				(cross == vertexes[i] && vertexes[i].y < vertexes[i == 0 ? vertexes.size() - 1 : i - 1].y && vertexes[i].y <= vertexes[i + 1].y)))
-			{
-				if (cross.y >= point.y && _isInside(vertexes[i], vertexes[i + 1], cross))
-				{
-					crossingNumber++;
-					if (cross == vertexes[i + 1])
-						i++;
-				}
-
-			}
-		}
-	}
-	return crossingNumber % 2 != 0;
+	return (crossingNumber + crossingVertexes / 2) % 2 != 0;
 }
 
 size_t Polygon::verticesCount() const
