@@ -1,0 +1,97 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using std::vector;
+
+class segmentTree
+{
+public:
+	segmentTree(const vector<int>& arr)
+	{
+		size_t p = 1;
+		while (true)
+		{
+			maxTree.insert(maxTree.end(), p, 0);
+			valuesTree.insert(valuesTree.end(), p, 0);
+			if (arr.size() <= p)
+			{
+				for (size_t i = 0; i < arr.size(); ++i)
+					maxTree[maxTree.size() - p + i] = arr[i];
+				if (p == 1)
+					return;
+				for (size_t i = maxTree.size() - p - 1; ; --i)
+				{
+					maxTree[i] = std::max(maxTree[2 * i + 1], maxTree[2 * i + 2]);
+					if (i == 0)
+						break;
+				}
+				return;
+			}
+			p *= 2;
+		}
+	}
+	size_t size() const
+	{
+		return (maxTree.size() + 1) / 2;
+	}
+	void increase(size_t l, size_t r, int value)
+	{
+		increase(l, r, value, 0, 0, size() - 1);
+	}
+	int get(size_t l, size_t r)
+	{
+		return get(l, r, 0, 0, size() - 1);
+	}
+private:
+	void increase(size_t l, size_t r, int value, size_t root, size_t L, size_t R)
+	{
+		if (l == L && r == R)
+		{
+			maxTree[root] += value;
+			valuesTree[root] += value;
+			return;
+		}
+		if (l > r)
+			return;
+		size_t M = (L + R) / 2;
+		increase(l, std::min(r, M), value, root * 2 + 1, L, M);
+		increase(std::max(l, M + 1), r, value, root * 2 + 2, M + 1, R);
+		maxTree[root] = std::max(maxTree[2 * root + 1], maxTree[2 * root + 2]) + valuesTree[root];
+	}
+	int get(size_t l, size_t r, size_t root, size_t L, size_t R)
+	{
+		if (L == l && R == r)
+			return maxTree[root];
+		if (l > r)
+			return 0;
+		size_t M = (L + R) / 2;
+		return std::max(get(l, std::min(r, M), 2 * root + 1, L, M), get(std::max(l, M + 1), r, 2 * root + 2, M + 1, R)) + valuesTree[root];
+	}
+	vector<int> maxTree;
+	vector<int> valuesTree;
+};
+
+int main()
+{
+	int N;
+	std::cin >> N;
+	vector<int> arr(N - 1);
+	for (int i = 0; i < N - 1; i++)
+		std::cin >> arr[i];
+	segmentTree ST(arr);
+	int size;
+	int m;
+	std::cin >> size >> m;
+	for (int i = 0; i < m; i++)
+	{
+		int f;
+		int s;
+		int q;
+		std::cin >> f >> s >> q;
+		std::cout << ST.get(f, s - 1) << "\n";
+		if (ST.get(f, s - 1) + q > size)
+			std::cout << i << " ";
+		else
+			ST.increase(f, s - 1, q);
+	}
+}
