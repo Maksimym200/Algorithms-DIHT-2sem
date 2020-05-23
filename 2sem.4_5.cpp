@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <stack>
 #include <string>
 using std::stack;
@@ -55,15 +55,15 @@ public:
 		node<T>* newLeft = merge(left, newElement);
 		root = merge(newLeft, right);
 	}
-	void deleteAt(size_t position)
+	void deleteAt(size_t posStart, size_t posEnd)
 	{
 		node<T>* left;
 		node<T>* mid;
-		split(position, root, left, mid);
+		split(posStart, root, left, mid);
 		node<T>* del;
 		node<T>* right;
-		split(1, mid, del, right);
-		delete del;
+		split(posEnd - posStart + 1, mid, del, right);
+		deleteSubTree(del);
 		root = merge(left, right);
 	}
 	T& getAt(size_t position)
@@ -168,13 +168,7 @@ int main()
 		{
 			size_t posEnd;
 			std::cin >> posEnd;
-			while (true)
-			{
-				superStringArray.deleteAt(pos);
-				if (posEnd == pos)
-					break;
-				--posEnd;
-			}
+			superStringArray.deleteAt(pos, posEnd);
 		}
 		else if (command == '?')
 		{
