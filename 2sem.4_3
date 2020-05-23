@@ -1,0 +1,148 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using std::vector;
+int max = 2147483647;
+
+class segmentTree
+{
+public:
+	segmentTree(const vector<int>& arr)
+	{
+		size_t p = 1;
+		while (true)
+		{
+			minTree.insert(minTree.end(), p, max);
+			valuesTree.insert(valuesTree.end(), p, -1);
+			if (arr.size() <= p)
+			{
+				for (size_t i = 0; i < arr.size(); ++i)
+					minTree[minTree.size() - p + i] = arr[i];
+				if (p == 1)
+					return;
+				for (size_t i = minTree.size() - p - 1; ; --i)
+				{
+					minTree[i] = std::min(minTree[2 * i + 1], minTree[2 * i + 2]);
+					if (i == 0)
+						break;
+				}
+				return;
+			}
+			p *= 2;
+		}
+	}
+	size_t size() const
+	{
+		return (minTree.size() + 1) / 2;
+	}
+	void change(size_t l, size_t r, int value)
+	{
+		change(l, r, value, 0, 0, size() - 1);
+	}
+	int get(size_t l, size_t r)
+	{
+		return get(l, r, 0, 0, size() - 1);
+	}
+private:
+	void push(size_t root)
+	{
+		if (valuesTree[root] != -1)
+		{
+			minTree[root] = valuesTree[root];
+			if (root * 2 + 1 < valuesTree.size())
+			{
+				valuesTree[root * 2 + 1] = valuesTree[root];
+				minTree[root * 2 + 1] = valuesTree[root];
+			}
+			if (root * 2 + 2 < valuesTree.size())
+			{
+				valuesTree[root * 2 + 2] = valuesTree[root];
+				minTree[root * 2 + 2] = valuesTree[root];
+			}
+			valuesTree[root] = -1;
+		}
+	}
+	void change(size_t l, size_t r, int value, size_t root, size_t L, size_t R)
+	{
+		if (l > r)
+			return;
+		if (l == L && r == R)
+		{
+			valuesTree[root] = value;
+			minTree[root] = value;
+			return;
+		}
+		push(root);
+		size_t M = (L + R) / 2;
+		change(l, std::min(r, M), value, root * 2 + 1, L, M);
+		change(std::max(l, M + 1), r, value, root * 2 + 2, M + 1, R);
+		minTree[root] = std::min(minTree[2 * root + 1], minTree[2 * root + 2]);
+	}
+	int get(size_t l, size_t r, size_t root, size_t L, size_t R)
+	{
+		if (l > r)
+			return max;
+		push(root);
+		if (L == l && R == r)
+		{
+			return minTree[root];
+		}
+		size_t M = (L + R) / 2;
+		return std::min(get(l, std::min(r, M), 2 * root + 1, L, M), get(std::max(l, M + 1), r, 2 * root + 2, M + 1, R));
+	}
+	vector<int> minTree;
+	vector<int> valuesTree;
+};
+
+int main()
+{
+	/*int N;
+	std::cin >> N;
+	vector<int> arr(N);
+	for (int i = 0; i < N; i++)
+	{
+		int R;
+		int G;
+		int B;
+		std::cin >> R >> G >> B;
+		arr[i] = R + G + B;
+	}
+	segmentTree ST(arr);
+	int K;
+	std::cin >> K;
+	for (int i = 0; i < K; i++)
+	{
+		int C, D;
+		std::cin >> C >> D;
+		int R;
+		int G;
+		int B;
+		std::cin >> R >> G >> B;
+		int E;
+		int F;
+		std::cin >> E >> F;
+		ST.change(C, D, R + G + B);
+		std::cout << ST.get(E, F) << " ";
+	}*/
+	int n;
+	std::cin >> n;
+	vector<int> arr(n);
+	for (int i = 0; i < n; i++)
+		std::cin >> arr[i];
+	segmentTree ST(arr);
+	while (true)
+	{
+		char c;
+		int l;
+		int r;
+		std::cin >> c >> l >> r;
+		if (c == '=')
+		{
+			int v;
+			std::cin >> v;
+			ST.change(l, r, v);
+		}
+		else
+			std::cout << ST.get(l, r) << "\n";
+	}
+}
