@@ -43,7 +43,7 @@ public:
 		return edges.size();
 	}
 private:
-	suspendedGraph(vector<vector<pair<int, int>>> e)
+	suspendedGraph(const vector<vector<pair<int, int>>>& e)
 	{
 		edges = e;
 	}
